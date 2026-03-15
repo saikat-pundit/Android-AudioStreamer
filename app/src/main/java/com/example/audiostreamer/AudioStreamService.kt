@@ -19,7 +19,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import java.io.OutputStream
-import java.net.ServerSocket
 import java.net.Socket
 
 class AudioStreamService : Service() {
@@ -28,8 +27,7 @@ class AudioStreamService : Service() {
     private val CHANNEL_ID = "audio_stream_channel"
     
     private var audioRecord: AudioRecord? = null
-    private var serverSocket: ServerSocket? = null
-    private var clientSocket: Socket? = null
+    private var socket: Socket? = null
     private var outputStream: OutputStream? = null
     private var isStreaming = false
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -81,7 +79,7 @@ class AudioStreamService : Service() {
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Audio Streamer")
-            .setContentText("Waiting for Ubuntu to connect...")
+            .setContentText("Streaming audio to desktop...")
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
@@ -91,8 +89,6 @@ class AudioStreamService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "START_STREAMING" -> {
-                // IP Address parameter is kept so we don't break MainActivity, 
-                // but we ignore it because the server binds locally.
                 val ipAddress = intent.getStringExtra("IP_ADDRESS") ?: "192.168.1.100"
                 val port = intent.getIntExtra("PORT", 8080)
                 val resultCode = intent.getIntExtra("RESULT_CODE", 0)
@@ -116,7 +112,11 @@ class AudioStreamService : Service() {
         
         serviceScope.launch {
             try {
-                // 1. Initialize AudioRecord based on Android Version
+                Log.d("AudioStream", "Connecting to $ipAddress:$port")
+                socket = Socket(ipAddress, port)
+                outputStream = socket?.getOutputStream()
+                Log.d("AudioStream", "Connected successfully")
+                
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && data != null) {
                     val mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
                     mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
@@ -148,49 +148,26 @@ class AudioStreamService : Service() {
                     )
                 }
                 
-                // 2. Start the Server
-                Log.d("AudioStream", "Starting ServerSocket on port $port")
-                serverSocket = ServerSocket(port)
+                audioRecord?.startRecording()
                 val buffer = ByteArray(BUFFER_SIZE)
                 
-                // 3. Keep the server running and wait for clients
-                while (isStreaming) {
-                    try {
-                        Log.d("AudioStream", "Waiting for Ubuntu PC to connect...")
-                        // This line PAUSES the thread until Ubuntu runs 'nc'
-                        clientSocket = serverSocket?.accept() 
-                        Log.d("AudioStream", "Ubuntu connected! Starting audio flow.")
-                        
-                        outputStream = clientSocket?.getOutputStream()
-                        audioRecord?.startRecording()
-                        
-                        // 4. Actively stream to the connected client
-                        while (isStreaming && clientSocket?.isConnected == true && !clientSocket!!.isClosed) {
-                            val bytesRead = audioRecord?.read(buffer, 0, buffer.size) ?: 0
-                            if (bytesRead > 0) {
-                                try {
-                                    outputStream?.write(buffer, 0, bytesRead)
-                                    outputStream?.flush()
-                                } catch (e: Exception) {
-                                    Log.e("AudioStream", "Ubuntu disconnected or pipe broken", e)
-                                    break // Break the inner loop to wait for a new connection
-                                }
-                            }
-                            if (!wakeLock.isHeld) {
-                                wakeLock.acquire(10*60*1000L)
-                            }
+                while (isStreaming && socket?.isConnected == true) {
+                    val bytesRead = audioRecord?.read(buffer, 0, buffer.size) ?: 0
+                    if (bytesRead > 0) {
+                        try {
+                            outputStream?.write(buffer, 0, bytesRead)
+                            outputStream?.flush()
+                        } catch (e: Exception) {
+                            Log.e("AudioStream", "Error sending data", e)
+                            break
                         }
-                    } catch (e: Exception) {
-                        Log.e("AudioStream", "Client connection error", e)
-                    } finally {
-                        // Clean up this specific client, but keep the server running
-                        audioRecord?.stop()
-                        outputStream?.close()
-                        clientSocket?.close()
+                    }
+                    if (!wakeLock.isHeld) {
+                        wakeLock.acquire(10*60*1000L)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("AudioStream", "Server streaming error", e)
+                Log.e("AudioStream", "Streaming error", e)
             } finally {
                 cleanup()
                 if (isStreaming) {
@@ -216,16 +193,14 @@ class AudioStreamService : Service() {
             audioRecord?.release()
             mediaProjection?.stop()
             outputStream?.close()
-            clientSocket?.close()
-            serverSocket?.close()
+            socket?.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
         audioRecord = null
         mediaProjection = null
         outputStream = null
-        clientSocket = null
-        serverSocket = null
+        socket = null
     }
     
     override fun onDestroy() {
