@@ -9,9 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Make gradlew executable
-      run: chmod +x gradlew
-
     - name: set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -29,23 +26,13 @@ jobs:
         mkdir -p app/src/main/res/drawable
         if [ -f logo.png ]; then
           cp logo.png app/src/main/res/drawable/logo.png
-        else
-          echo "No logo found, using default"
         fi
 
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
-
-    - name: Rename APK
-      run: |
-        APK_FILE=$(find app/build/outputs -name "*.apk" | head -n 1)
-        mkdir -p app/build/outputs/apk/debug
-        if [ -f "$APK_FILE" ]; then
-          mv "$APK_FILE" app/build/outputs/apk/debug/AudioStreamer.apk
-        fi
+      run: gradle assembleDebug  # Changed from ./gradlew to gradle
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Audio-Streamer-App
-        path: app/build/outputs/apk/debug/AudioStreamer.apk
+        path: app/build/outputs/apk/debug/*.apk
