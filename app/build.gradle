@@ -7,11 +7,6 @@ android {
     namespace 'com.example.audiostreamer'
     compileSdk 34
 
-    buildFeatures {
-        buildConfig true
-        viewBinding true
-    }
-
     defaultConfig {
         applicationId "com.example.audiostreamer"
         minSdk 24
@@ -19,19 +14,13 @@ android {
         versionCode 1
         versionName "1.0"
         
-        // Multi-process support
         multiDexEnabled true
     }
     
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
             minifyEnabled false
-            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     
@@ -50,18 +39,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    
-    // Background work
-    implementation 'androidx.work:work-runtime-ktx:2.9.0'
-    
-    // Coroutines for background
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
-    
-    // Lifecycle
     implementation 'androidx.lifecycle:lifecycle-service:2.7.0'
-    implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
-    
-    // Multi-dex support
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 }
