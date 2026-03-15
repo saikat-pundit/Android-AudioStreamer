@@ -23,8 +23,8 @@ jobs:
 
     - name: Prepare Logo
       run: |
-        mkdir -p app/src/main/res/drawable
-        cp logo.png app/src/main/res/drawable/logo.png || echo "Logo not found"
+        mkdir -p app/src/main/res/mipmap-xxxhdpi
+        cp logo.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
     
     - name: Build with Gradle
       run: gradle assembleDebug
