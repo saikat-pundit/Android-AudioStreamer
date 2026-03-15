@@ -24,8 +24,22 @@ jobs:
     - name: Prepare Logo
       run: |
         mkdir -p app/src/main/res/drawable
+        mkdir -p app/src/main/res/mipmap-anydpi-v26
         if [ -f logo.png ]; then
-          cp logo.png app/src/main/res/drawable/logo.png
+          # 1. Fallback icon for older Android versions
+          cp logo.png app/src/main/res/drawable/ic_launcher.png
+          
+          # 2. Foreground layer for modern Adaptive Icons
+          cp logo.png app/src/main/res/drawable/ic_launcher_foreground.png
+          
+          # 3. Automatically write the Adaptive Icon XML file
+          cat << 'EOF' > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@android:color/white" />
+              <foreground android:drawable="@drawable/ic_launcher_foreground" />
+          </adaptive-icon>
+          EOF
         fi
 
     - name: Build with Gradle
