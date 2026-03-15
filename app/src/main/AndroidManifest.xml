@@ -23,15 +23,14 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:allowBackup="true"
-        android:icon="@drawable/logo"
-        android:label="Audio Streamer"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-        android:persistent="true"
-        android:largeHeap="true"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        tools:targetApi="31">
+    android:allowBackup="true"
+    android:label="Audio Streamer"
+    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+    android:persistent="true"
+    android:largeHeap="true"
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config"
+    tools:targetApi="31">
         
         <!-- ========== MAIN ACTIVITY ========== -->
         <activity
