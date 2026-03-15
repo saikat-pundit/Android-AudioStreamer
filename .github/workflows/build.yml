@@ -2,12 +2,15 @@ name: Android Audio Streamer CI
 
 on:
   workflow_dispatch:
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Make gradlew executable
+      run: chmod +x gradlew
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -24,10 +27,9 @@ jobs:
     - name: Prepare Logo
       run: |
         mkdir -p app/src/main/res/drawable
-        if [ -f app_logo.png ]; then
-          cp app_logo.png app/src/main/res/drawable/logo.png
+        if [ -f logo.png ]; then
+          cp logo.png app/src/main/res/drawable/logo.png
         else
-          # Create a simple placeholder if no logo exists
           echo "No logo found, using default"
         fi
 
