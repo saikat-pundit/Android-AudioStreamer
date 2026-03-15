@@ -20,13 +20,11 @@ class MainActivity : AppCompatActivity() {
     
     private lateinit var ipAddressInput: EditText
     private lateinit var portInput: EditText
-    private lateinit var startButton: Button
-    private lateinit var stopButton: Button
+    private lateinit var toggleStreamButton: Button
     private lateinit var statusText: TextView
     private lateinit var prefs: SharedPreferences
     private lateinit var mediaProjectionManager: MediaProjectionManager
     
-    // Launcher to request screen/audio capture permission
     private val screenCaptureLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -44,8 +42,7 @@ class MainActivity : AppCompatActivity() {
         
         ipAddressInput = findViewById(R.id.ipAddressInput)
         portInput = findViewById(R.id.portInput)
-        startButton = findViewById(R.id.startButton)
-        stopButton = findViewById(R.id.stopButton)
+        toggleStreamButton = findViewById(R.id.toggleStreamButton)
         statusText = findViewById(R.id.statusText)
         
         prefs = getSharedPreferences("AudioStreamer", MODE_PRIVATE)
@@ -54,8 +51,13 @@ class MainActivity : AppCompatActivity() {
         ipAddressInput.setText(prefs.getString("ip_address", "192.168.1.100"))
         portInput.setText(prefs.getString("port", "8080"))
         
-        startButton.setOnClickListener { startStreamingProcess() }
-        stopButton.setOnClickListener { stopStreaming() }
+        toggleStreamButton.setOnClickListener {
+            if (toggleStreamButton.text.toString() == "START STREAMING") {
+                startStreamingProcess()
+            } else {
+                stopStreaming()
+            }
+        }
         
         updateStatus(false)
     }
@@ -75,12 +77,10 @@ class MainActivity : AppCompatActivity() {
         
         PermissionManager(this).requestAllPermissions()
         
-        // For Android 10+, request MediaProjection permission to capture internal audio
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val intent = mediaProjectionManager.createScreenCaptureIntent()
             screenCaptureLauncher.launch(intent)
         } else {
-            // Fallback for older Android versions (will only capture MIC)
             startAudioService(Activity.RESULT_OK, Intent())
         }
     }
@@ -119,17 +119,16 @@ class MainActivity : AppCompatActivity() {
         if (isStreaming) {
             statusText.text = "Status: Streaming Active"
             statusText.setTextColor(getColor(android.R.color.holo_green_dark))
-            startButton.isEnabled = false
-            stopButton.isEnabled = true
+            toggleStreamButton.text = "STOP STREAMING"
+            toggleStreamButton.backgroundTintList = getColorStateList(android.R.color.holo_red_dark)
         } else {
             statusText.text = "Status: Not Streaming"
             statusText.setTextColor(getColor(android.R.color.holo_red_dark))
-            startButton.isEnabled = true
-            stopButton.isEnabled = false
+            toggleStreamButton.text = "START STREAMING"
+            toggleStreamButton.backgroundTintList = getColorStateList(android.R.color.holo_green_dark)
         }
     }
     
-    // (Your PermissionManager class remains exactly the same here)
     class PermissionManager(private val activity: MainActivity) {
         fun requestAllPermissions() {
             requestRecordAudio()
