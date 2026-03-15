@@ -20,9 +20,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo"
-        android:roundIcon="@drawable/logo"
-        android:label="Streamer"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
+        android:label="Streamer
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
         android:persistent="true"
         android:largeHeap="true"
