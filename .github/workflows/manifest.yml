@@ -1,47 +1,37 @@
-name: Simple File Manifest
+name: Android Audio Streamer CI
 
 on:
   workflow_dispatch:
 
 jobs:
-  generate:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Generate File List
-        run: |
-          # Create output directory
-          mkdir -p manifest
-          
-          # Create header
-          echo "FILE MANIFEST" > manifest/files.txt
-          echo "Generated: $(date)" >> manifest/files.txt
-          echo "========================================" >> manifest/files.txt
-          echo "" >> manifest/files.txt
-          
-          # Find all files and add their content
-          find . -type f \
-            -not -path "./.git/*" \
-            -not -path "*/node_modules/*" \
-            -not -path "*/build/*" \
-            -not -path "*/dist/*" \
-            -not -name "*.lock" \
-            -not -name "*.log" \
-            | sort | while read file; do
-            
-            echo "FILE: $file" >> manifest/files.txt
-            echo "========================================" >> manifest/files.txt
-            cat "$file" 2>/dev/null >> manifest/files.txt || echo "[BINARY FILE]" >> manifest/files.txt
-            echo "" >> manifest/files.txt
-            echo "" >> manifest/files.txt
-          done
-          
-          # Count files
-          echo "Total files processed: $(find . -type f | wc -l)" >> manifest/files.txt
-          
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: file-manifest
-          path: manifest/
+    - uses: actions/checkout@v4
+
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: '8.2'
+
+    - name: Copy Logo
+      run: cp logo.png app/src/main/res/drawable/logo.png
+
+    - name: Build with Gradle
+      run: gradle assembleDebug
+
+    - name: Rename APK
+      run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Streamer.apk
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Audio-Streamer-App
+        path: app/build/outputs/apk/debug/Streamer.apk
