@@ -24,6 +24,7 @@
 
     <application
     android:allowBackup="true"
+    android:icon="@drawable/logo"    
     android:label="Audio Streamer"
     android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
     android:persistent="true"
