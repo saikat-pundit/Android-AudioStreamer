@@ -21,11 +21,27 @@ jobs:
       with:
         gradle-version: '8.2'
 
-    - name: Prepare Logo
+    - name: Prepare Logo with Proper Size
       run: |
-        # Simply copy logo.png to drawable folder
+        # Copy logo to drawable folder
         mkdir -p app/src/main/res/drawable
         cp logo.png app/src/main/res/drawable/logo.png
+        
+        # Create the icon XML file to fix size
+        mkdir -p app/src/main/res/drawable
+        cat > app/src/main/res/drawable/ic_launcher.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+            <item
+                android:width="72dp"
+                android:height="72dp"
+                android:drawable="@drawable/logo" />
+        </layer-list>
+        EOF
+
+        # Update AndroidManifest.xml to use the new icon
+        sed -i 's/android:icon="@drawable\/logo"/android:icon="@drawable\/ic_launcher"/' app/src/main/AndroidManifest.xml
+        sed -i 's/android:roundIcon="@drawable\/logo"/android:roundIcon="@drawable\/ic_launcher"/' app/src/main/AndroidManifest.xml
 
     - name: Build with Gradle
       run: gradle assembleDebug
