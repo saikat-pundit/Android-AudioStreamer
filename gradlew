@@ -80,10 +80,10 @@ do
     esac
 done
 
-# This is normally unused
-# shellcheck disable=SC2034
-APP_BASE_NAME=${0##*/}
 APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+
+APP_NAME="Gradle"
+APP_BASE_NAME=${0##*/}
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
@@ -116,7 +116,6 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
-
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -143,129 +142,53 @@ fi
 if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
     case $MAX_FD in #(
       max*)
-        # In POSIX sh, ulimit -H is undefined. That's why the result is checked to see if it worked.
-        # shellcheck disable=SC3045
         MAX_FD=$( ulimit -H -n ) ||
             warn "Could not query maximum file descriptor limit"
     esac
     case $MAX_FD in  #(
       '' | soft) :;; #(
       *)
-        # In POSIX sh, ulimit -n is undefined. That's why the result is checked to see if it worked.
-        # shellcheck disable=SC3045
         ulimit -n "$MAX_FD" ||
             warn "Could not set maximum file descriptor limit to $MAX_FD"
     esac
 fi
 
 # Collect all arguments for the java command, stacking in reverse order to eventually pass to java.
-# We cannot use arrays for this, because relying on them causes "fork bomb" behavior on some POSIX systems.
-# So we stack arguments in $ARGV counteractively, building a command line that proceeds using that slow style.
-
-# To make this script Mac OSX friendly, we skip the "cp" parsing of the arguments.
-
-# Split the _JAVA_OPTIONS and JAVA_OPTS and GRADLE_OPTS values into separate arguments
-# This simulates the word splitting that bash and ksh provide, allowing the script to integrate with the
-# IDEA JWT script's "jr" and "idea" scripts, which rely on word splitting to pass arguments to gradle.
-# In particular:
-#   The grammar uses: OptionCanonicalizer = '$JAVA_OPTS' || '$GRADLE_OPTS' || ... ;
-#   This enables: export GRADLE_OPTS='"$GRADLE_OPTS" \"-Pproperty=value\"'
-#   This behaves like: GRADLE_OPTS = (general jvm args) (space) (property) (space) (property) etc.
-#
-# We don't use word splitting on environment variables because that can cause unstable behavior.
-# So we use "set +f" to disable glob matching, then iterate over the environment variable's value expanding the tokens.
-# This is necessary because the ~1..* character ' ' is a separator for splitting.
-
-# Save the original arguments
-ORIGINAL_ARGVs=$*
-
-# Pre-collect any GRADLE_OPTS or JAVA_OPTS that might contain quoted arguments.
-# Use set +f to disable globbing so that we can split on spaces without worrying about expansion.
-set +f
-
-# Split GRADLE_OPTS
-if [ -n "$GRADLE_OPTS" ]; then
-    # Use eval to simulate shell word splitting, as if the $GRADLE_OPTS were parsed as shell arguments.
-    # This will preserve quoted arguments like: -Dfoo="bar baz"
-    eval GRADLE_OPTS_TO_SPLIT=\"$GRADLE_OPTS\"
-    # We don't need to keep GRADLE_OPTS around, so we can set it to the split version.
-    set -- $GRADLE_OPTS_TO_SPLIT
-    unset GRADLE_OPTS_TO_SPLIT
-    # Append the split GRADLE_OPTS to the current arguments.
-    for arg do
-        ARGV[${#ARGV[@]}]=$arg
-    done
-fi
-
-# Split JAVA_OPTS
-if [ -n "$JAVA_OPTS" ]; then
-    eval JAVA_OPTS_TO_SPLIT=\"$JAVA_OPTS\"
-    set -- $JAVA_OPTS_TO_SPLIT
-    unset JAVA_OPTS_TO_SPLIT
-    for arg do
-        ARGV[${#ARGV[@]}]=$arg
-    done
-fi
-
-# Split _JAVA_OPTIONS
-if [ -n "$_JAVA_OPTIONS" ]; then
-    eval _JAVA_OPTIONS_TO_SPLIT=\"$_JAVA_OPTIONS\"
-    set -- $_JAVA_OPTIONS_TO_SPLIT
-    unset _JAVA_OPTIONS_TO_SPLIT
-    for arg do
-        ARGV[${#ARGV[@]}]=$arg
-    done
-fi
-
-# Restore the default behavior
-set -f
-
-# Collect all arguments in reverse stack order (so that ARGV is a valid arguments list after the loop).
-ARGV=()
-while [ $# -gt 0 ]; do
-
-    # Remove the argument from the command line
-    arg=$1
-    shift
-
-    # Check if the argument is an option whose argument(s) are attached with =, :, etc.
-    case $arg in
-        # Short options, possibly with argument attached
-        -[dDm]?*)
-            # Short option with argument attached: split it up.
-            # key="${arg:2}" # Not needed for now, as we pass the whole arg to java.
-            # In POSIX sh, substring is not available. So we just pass the whole arg to java.
-            # Eventually, we should split the arg into option and argument.
-            ARGV[${#ARGV[@]}]=$arg
-            ;;
-        # Long options with arguments, or options that just need to be passed through
-        *)
-            ARGV[${#ARGV[@]}]=$arg
-            ;;
-    esac
+# There might be quite a lot, so install a dedicated array handler to avoid slowing down this script.
+# This approach also avoids breaking arguments that span newlines.
+set -- 
+for ARG in "$@"; do
+  set -- "$@" "$ARG"
 done
 
-# Prepend DEFAULT_JVM_OPTS and any remaining command line arguments to the final command.
-# Use the whole ARGV as the command line, but we need to prepend DEFAULT_JVM_OPTS, JAVA_OPTS, and GRADLE_OPTS.
-# We do this by building the command in a loop.
+# Split up the JVM_OPTS And GRADLE_OPTS arguments into separate arguments
+# This is needed because the ${...} expansions in the loop below would treat spaces
+# as argument separators otherwise.
+set -- "$DEFAULT_JVM_OPTS" "$@"
+if [ -n "$JAVA_OPTS" ] ; then
+    set -- "$JAVA_OPTS" "$@"
+fi
+if [ -n "$GRADLE_OPTS" ] ; then
+    set -- "$GRADLE_OPTS" "$@"
+fi
 
-# The command line we'll execute is:
-#   java $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS -cp $CLASSPATH org.gradle.wrapper.GradleWrapperMain "$@"
-# We need to quote the classpath and the main class for when there are spaces in the path.
-# We also need to ensure the arguments for the main class are properly quoted.
+# Escape application args
+save () {
+    for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
+    echo " "
+}
+APP_ARGS=$(save "$@")
 
-# Build the argument list in reverse order.
-# We will prepend the main class and the classpath after building the rest of the arguments.
-REV_ARGS=()
-for arg in "${ARGV[@]}"; do
-    REV_ARGS=("$arg" "${REV_ARGS[@]}")
+# Collect all arguments for the java command;
+#   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
+#     shell script including quotes and variable substitutions, so put them in
+#     double quotes to make sure that they get re-expanded; and
+#   * put everything else in single quotes, so that it's not re-expanded.
+
+set -- 
+for ARG in "$@"; do
+  set -- "$@" "$ARG"
 done
 
-# Prepend the main class and classpath to the reverse arguments.
-REV_ARGS=( "-cp" "$CLASSPATH" "org.gradle.wrapper.GradleWrapperMain" "${REV_ARGS[@]}" )
-
-# Prepend the JVM options.
-REV_ARGS=( $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "${REV_ARGS[@]}" )
-
-# Now execute the java command.
-exec "$JAVACMD" "${REV_ARGS[@]}"
+# Now actually run the java command.
+exec "$JAVACMD" -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
