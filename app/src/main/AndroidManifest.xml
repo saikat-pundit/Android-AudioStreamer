@@ -23,10 +23,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-    android:allowBackup="true"
-    android:icon="@drawable/logo"    
-    android:label="Audio Streamer"
-    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"         android:roundIcon="@mipmap/ic_launcher"    android:label="Streamer"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
     android:persistent="true"
     android:largeHeap="true"
     android:usesCleartextTraffic="true"
