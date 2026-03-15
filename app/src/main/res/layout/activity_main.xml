@@ -68,24 +68,15 @@
         android:layout_marginBottom="30dp"/>
 
     <Button
-        android:id="@+id/startButton"
+        android:id="@+id/toggleStreamButton"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Start Streaming"
-        android:textSize="16sp"
+        android:layout_height="64dp"
+        android:text="START STREAMING"
+        android:textSize="18sp"
+        android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:backgroundTint="#4CAF50"
         android:layout_marginBottom="12dp"/>
-
-    <Button
-        android:id="@+id/stopButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Stop Streaming"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#F44336"
-        android:enabled="false"/>
 
     <TextView
         android:layout_width="match_parent"
