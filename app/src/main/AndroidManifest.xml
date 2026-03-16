@@ -25,7 +25,7 @@
     android:icon="@drawable/ic_launcher"
     android:roundIcon="@drawable/ic_launcher"
     android:label="Streamer &amp; Sharing"
-    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+    android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
     android:persistent="true"
     android:largeHeap="true"
     android:usesCleartextTraffic="true"
