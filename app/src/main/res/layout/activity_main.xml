@@ -77,7 +77,34 @@
         android:textColor="#FFFFFF"
         android:backgroundTint="#4CAF50"
         android:layout_marginBottom="12dp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#333333"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"/>
 
+    <TextView
+        android:id="@+id/ftpStatusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="FTP: Stopped"
+        android:textColor="#FF4444"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/toggleFtpButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="START FTP SERVER"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#2196F3"
+        android:layout_marginBottom="12dp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
