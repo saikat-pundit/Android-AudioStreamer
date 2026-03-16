@@ -1,4 +1,5 @@
 package com.example.audiostreamer
+
 import android.os.Environment
 import android.app.Activity
 import android.content.Intent
@@ -17,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    
     private lateinit var toggleFtpButton: Button
     private lateinit var ftpStatusText: TextView
     private var isFtpRunning = false
@@ -46,6 +48,8 @@ class MainActivity : AppCompatActivity() {
         portInput = findViewById(R.id.portInput)
         toggleStreamButton = findViewById(R.id.toggleStreamButton)
         statusText = findViewById(R.id.statusText)
+        toggleFtpButton = findViewById(R.id.toggleFtpButton)
+        ftpStatusText = findViewById(R.id.ftpStatusText)
         
         prefs = getSharedPreferences("AudioStreamer", MODE_PRIVATE)
         mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
@@ -61,7 +65,42 @@ class MainActivity : AppCompatActivity() {
             }
         }
         
+        toggleFtpButton.setOnClickListener {
+            if (!isFtpRunning) {
+                PermissionManager(this).requestAllPermissions()
+                
+                val intent = Intent(this, FtpService::class.java).apply { action = "START_FTP" }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                } else {
+                    startService(intent)
+                }
+                isFtpRunning = true
+                updateFtpStatus()
+            } else {
+                val intent = Intent(this, FtpService::class.java).apply { action = "STOP_FTP" }
+                startService(intent)
+                isFtpRunning = false
+                updateFtpStatus()
+            }
+        }
+        
         updateStatus(false)
+        updateFtpStatus()
+    }
+    
+    private fun updateFtpStatus() {
+        if (isFtpRunning) {
+            ftpStatusText.text = "FTP: ftp://YOUR_IP:2121"
+            ftpStatusText.setTextColor(getColor(android.R.color.holo_blue_light))
+            toggleFtpButton.text = "STOP FTP SERVER"
+            toggleFtpButton.backgroundTintList = getColorStateList(android.R.color.holo_red_dark)
+        } else {
+            ftpStatusText.text = "FTP: Stopped"
+            ftpStatusText.setTextColor(getColor(android.R.color.holo_red_dark))
+            toggleFtpButton.text = "START FTP SERVER"
+            toggleFtpButton.backgroundTintList = getColorStateList(android.R.color.holo_blue_dark)
+        }
     }
     
     private fun startStreamingProcess() {
@@ -136,6 +175,7 @@ class MainActivity : AppCompatActivity() {
             requestRecordAudio()
             requestBatteryOptimization()
             requestNotificationPermission()
+            requestStoragePermission()
         }
         
         private fun requestRecordAudio() {
@@ -162,6 +202,22 @@ class MainActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                     activity.requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1002)
+                }
+            }
+        }
+        
+        private fun requestStoragePermission() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    try {
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        intent.addCategory("android.intent.category.DEFAULT")
+                        intent.data = Uri.parse("package:${activity.packageName}")
+                        activity.startActivity(intent)
+                    } catch (e: Exception) {
+                        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        activity.startActivity(intent)
+                    }
                 }
             }
         }
