@@ -80,7 +80,7 @@ class FtpService : Service() {
             val userManager = serverFactory.userManager
             val user = BaseUser()
             user.name = "anonymous"
-            user.homeDirectory = Environment.getExternalStorageDirectory().absolutePath
+            user.homeDirectory = "/storage"
             
             val auths = ArrayList<org.apache.ftpserver.ftplet.Authority>()
             auths.add(WritePermission())
