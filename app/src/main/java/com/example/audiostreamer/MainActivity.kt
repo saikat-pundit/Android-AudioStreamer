@@ -58,8 +58,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toggleWebcamButton: Button
     private lateinit var webcamStatusText: TextView
     private lateinit var viewFinder: PreviewView
+    private lateinit var flipCameraButton: Button
+    private lateinit var webcamUrlText: TextView
     
     // State & Managers
+    private var lensFacing = CameraSelector.LENS_FACING_BACK
     private var isFtpRunning = false
     private var isWebcamRunning = false
     private lateinit var prefs: SharedPreferences
@@ -101,6 +104,8 @@ class MainActivity : AppCompatActivity() {
         toggleWebcamButton = findViewById(R.id.toggleWebcamButton)
         webcamStatusText = findViewById(R.id.webcamStatusText)
         viewFinder = findViewById(R.id.viewFinder)
+        flipCameraButton = findViewById(R.id.flipCameraButton)
+        webcamUrlText = findViewById(R.id.webcamUrlText)
         
         prefs = getSharedPreferences("AudioStreamer", MODE_PRIVATE)
         mediaProjectionManager = getSystemService(MediaProjectionManager::class.java)
@@ -162,6 +167,19 @@ class MainActivity : AppCompatActivity() {
         }
         
         // Webcam Button
+        // Flip Camera Button
+        flipCameraButton.setOnClickListener {
+            lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) {
+                CameraSelector.LENS_FACING_FRONT
+            } else {
+                CameraSelector.LENS_FACING_BACK
+            }
+            if (isWebcamRunning) {
+                startCamera()
+            }
+        }
+        
+        // Webcam Button
         toggleWebcamButton.setOnClickListener {
             if (!isWebcamRunning) {
                 PermissionManager(this).requestAllPermissions()
@@ -171,8 +189,10 @@ class MainActivity : AppCompatActivity() {
                     isWebcamRunning = true
                     
                     val ip = getLocalIpAddress()
-                    webcamStatusText.text = "Webcam: http://$ip:8081"
+                    webcamStatusText.text = "Webcam: Active"
                     webcamStatusText.setTextColor(getColor(android.R.color.holo_blue_light))
+                    webcamUrlText.text = "Open http://$ip:8081 in browser"
+                    webcamUrlText.setTextColor(getColor(android.R.color.holo_green_light))
                     toggleWebcamButton.text = "STOP WEBCAM SERVER"
                     toggleWebcamButton.backgroundTintList = ColorStateList.valueOf(getColor(android.R.color.holo_red_dark))
                 } else {
@@ -191,6 +211,8 @@ class MainActivity : AppCompatActivity() {
                 isWebcamRunning = false
                 webcamStatusText.text = "Webcam: Stopped"
                 webcamStatusText.setTextColor(getColor(android.R.color.holo_red_dark))
+                webcamUrlText.text = "URL will appear here"
+                webcamUrlText.setTextColor(Color.parseColor("#666666"))
                 toggleWebcamButton.text = "START WEBCAM SERVER"
                 toggleWebcamButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800"))
             }
@@ -224,7 +246,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build()
 
             try {
                 cameraProvider.unbindAll()
