@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
     android:background="#121212">
 
     <TextView
@@ -14,104 +14,149 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="40dp"/>
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Desktop IP Address:"
-        android:textColor="#BBBBBB"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
-
-    <EditText
-        android:id="@+id/ipAddressInput"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="e.g., 192.168.1.100"
-        android:textColorHint="#666666"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/edittext_bg"
-        android:padding="16dp"
-        android:inputType="phone"
-        android:layout_marginBottom="20dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Port Number:"
-        android:textColor="#BBBBBB"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
-
-    <EditText
-        android:id="@+id/portInput"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="8080"
-        android:textColorHint="#666666"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/edittext_bg"
-        android:padding="16dp"
-        android:inputType="number"
-        android:layout_marginBottom="30dp"/>
-
-    <TextView
-        android:id="@+id/statusText"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Status: Not Streaming"
-        android:textColor="#FF4444"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="30dp"/>
+        android:background="#1E1E1E"
+        app:tabTextColor="#BBBBBB"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabIndicatorColor="#4CAF50">
 
-    <Button
-        android:id="@+id/toggleStreamButton"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:text="START STREAMING"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#4CAF50"
-        android:layout_marginBottom="12dp"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#333333"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="10dp"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Streaming" />
 
-    <TextView
-        android:id="@+id/ftpStatusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="FTP: Stopped"
-        android:textColor="#FF4444"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FTP Server" />
+    </com.google.android.material.tabs.TabLayout>
 
-    <Button
-        android:id="@+id/toggleFtpButton"
+    <LinearLayout
+        android:id="@+id/streamingContainer"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:text="START FTP SERVER"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#2196F3"
-        android:layout_marginBottom="12dp"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Note: Ensure your Ubuntu desktop is running the receiver on the same network"
-        android:textColor="#666666"
-        android:textSize="12sp"
-        android:gravity="center"
-        android:layout_marginTop="30dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="visible">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Desktop IP Address:"
+            android:textColor="#BBBBBB"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/ipAddressInput"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="e.g., 192.168.1.100"
+            android:textColorHint="#666666"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/edittext_bg"
+            android:padding="16dp"
+            android:inputType="phone"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Port Number:"
+            android:textColor="#BBBBBB"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/portInput"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="8080"
+            android:textColorHint="#666666"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/edittext_bg"
+            android:padding="16dp"
+            android:inputType="number"
+            android:layout_marginBottom="30dp"/>
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: Not Streaming"
+            android:textColor="#FF4444"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="30dp"/>
+
+        <Button
+            android:id="@+id/toggleStreamButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="START STREAMING"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4CAF50"
+            android:layout_marginBottom="12dp"/>
+            
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note: Ensure your Ubuntu desktop is running the receiver on the same network"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_marginTop="30dp"/>
+            
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ftpContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/ftpStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="FTP: Stopped"
+            android:textColor="#FF4444"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="30dp"/>
+
+        <Button
+            android:id="@+id/toggleFtpButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="START FTP SERVER"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2196F3"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Connect from your desktop file manager to browse device files."
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginTop="20dp"/>
+
+    </LinearLayout>
 </LinearLayout>
