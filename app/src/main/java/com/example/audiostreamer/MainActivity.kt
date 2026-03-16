@@ -73,6 +73,12 @@ class MainActivity : AppCompatActivity() {
         
         ipAddressInput.setText(prefs.getString("ip_address", "192.168.1.100"))
         portInput.setText(prefs.getString("port", "8080"))
+
+        // Create Tabs Programmatically
+        if (tabLayout.tabCount == 0) {
+            tabLayout.addTab(tabLayout.newTab().setText("Streamer"))
+            tabLayout.addTab(tabLayout.newTab().setText("FTP"))
+        }
         
         // Setup Tab Navigation
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
