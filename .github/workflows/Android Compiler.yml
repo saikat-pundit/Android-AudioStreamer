@@ -40,9 +40,8 @@ jobs:
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: Android-Latest-App  # Remove spaces from tag name
+        tag_name: Android-Latest-App
         files: |
           app/build/outputs/apk/debug/Streamer.apk
-          source-code.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
