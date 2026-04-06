@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Add this to allow creating releases
+    
     steps:
     - uses: actions/checkout@v4
 
@@ -30,10 +33,14 @@ jobs:
     - name: Rename APK
       run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Streamer.apk
 
+    - name: Create Source Code Archive
+      run: |
+        git archive --format=zip --output=source-code.zip HEAD
+
     - name: Upload to Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: Android Latest App 
+        tag_name: Android-Latest-App  # Remove spaces from tag name
         files: |
           app/build/outputs/apk/debug/Streamer.apk
           source-code.zip
